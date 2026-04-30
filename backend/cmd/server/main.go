@@ -21,13 +21,16 @@ import (
 )
 
 // Curated list of OpenRouter free-tier models surfaced to the UI. Suffix `:free` is required by
-// the task. Context sizes are approximate and only used for the model-picker hint.
+// the task. The list is restricted to models that actually serve traffic on the free tier as of
+// this build — OpenRouter rotates these often, so probe with a "hi" request before adding.
+// Context sizes are approximate and only used for the model-picker hint.
 var freeModels = []models.LLMModel{
-	{ID: "deepseek/deepseek-chat-v3-0324:free", Name: "DeepSeek Chat v3", Description: "Универсальная модель, хороша в коде и рассуждениях", ContextSize: 64000},
-	{ID: "z-ai/glm-4.5-air:free", Name: "GLM 4.5 Air", Description: "Лёгкая модель Zhipu, хороша в диалогах и рассуждениях", ContextSize: 128000},
-	{ID: "google/gemma-3-27b-it:free", Name: "Gemma 3 27B", Description: "Открытая модель Google, сильна в текстовых задачах", ContextSize: 96000},
-	{ID: "meta-llama/llama-4-scout:free", Name: "Llama 4 Scout", Description: "Быстрая модель Meta для повседневных задач", ContextSize: 128000},
-	{ID: "mistralai/mistral-7b-instruct:free", Name: "Mistral 7B Instruct", Description: "Лёгкая и быстрая модель Mistral", ContextSize: 32000},
+	{ID: "z-ai/glm-4.5-air:free", Name: "GLM 4.5 Air", Description: "Универсальная модель Zhipu, хороша в диалогах и рассуждениях", ContextSize: 131072},
+	{ID: "openai/gpt-oss-120b:free", Name: "GPT-OSS 120B", Description: "Открытые веса OpenAI, большая модель для сложных задач", ContextSize: 131072},
+	{ID: "openai/gpt-oss-20b:free", Name: "GPT-OSS 20B", Description: "Лёгкая модель OpenAI, быстрая и общедоступная", ContextSize: 131072},
+	{ID: "minimax/minimax-m2.5:free", Name: "MiniMax M2.5", Description: "Сильная модель MiniMax для длинных диалогов", ContextSize: 196608},
+	{ID: "nvidia/nemotron-3-super-120b-a12b:free", Name: "Nemotron 3 Super 120B", Description: "Большая instruct-модель Nvidia с очень длинным контекстом", ContextSize: 262144},
+	{ID: "tencent/hy3-preview:free", Name: "Hunyuan 3 Preview", Description: "Мультиязычная модель Tencent Hunyuan", ContextSize: 262144},
 }
 
 // resolveModels ensures the configured DEFAULT_MODEL is always in the picker, even if the
