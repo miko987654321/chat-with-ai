@@ -12,6 +12,9 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Guarantee /app/public exists for the runtime COPY below, even on fresh clones where the dir
+# was empty (git does not track empty directories) and .gitkeep was somehow excluded.
+RUN mkdir -p public
 # NEXT_PUBLIC_BACKEND_URL is baked into the client bundle at build time, so it must be passed as
 # a build-arg. Server-side fetches use BACKEND_URL at runtime via process.env.
 ARG NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
