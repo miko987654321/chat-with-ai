@@ -7,6 +7,7 @@ import rehypeHighlight from "rehype-highlight";
 import clsx from "clsx";
 import type { Message } from "@/lib/types";
 import { SparkleIcon } from "./Icons";
+import { ThinkingDots } from "./ThinkingDots";
 
 interface BubbleProps {
   message: Pick<Message, "role" | "content">;
@@ -15,6 +16,7 @@ interface BubbleProps {
 
 function MessageBubbleImpl({ message, pending }: BubbleProps) {
   const isUser = message.role === "user";
+  const hasContent = message.content.length > 0;
   return (
     <div
       className={clsx(
@@ -37,6 +39,8 @@ function MessageBubbleImpl({ message, pending }: BubbleProps) {
       >
         {isUser ? (
           <div className="whitespace-pre-wrap">{message.content}</div>
+        ) : pending && !hasContent ? (
+          <ThinkingDots label="думает…" />
         ) : (
           <>
             <ReactMarkdown

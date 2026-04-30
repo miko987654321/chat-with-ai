@@ -37,7 +37,7 @@ func NewRouter(h *Handler, log *slog.Logger, allowedOrigins []string) http.Handl
 			r.Post("/", h.CreateChat)
 			r.Route("/{id}", func(r chi.Router) {
 				r.Get("/", h.GetChat)
-				r.Patch("/", h.RenameChat)
+				r.Patch("/", h.UpdateChat)
 				r.Delete("/", h.DeleteChat)
 				r.Post("/messages", h.SendMessage)
 			})

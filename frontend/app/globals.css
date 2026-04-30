@@ -18,18 +18,23 @@
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: 12 12 14;
-    --bg-subtle: 22 22 26;
-    --bg-panel: 17 17 20;
-    --fg: 244 244 245;
-    --fg-muted: 161 161 170;
-    --fg-subtle: 113 113 122;
-    --border: 39 39 42;
-    --accent: 129 140 248;
-    --accent-fg: 12 12 14;
-  }
+html.dark {
+  --bg: 12 12 14;
+  --bg-subtle: 22 22 26;
+  --bg-panel: 17 17 20;
+  --fg: 244 244 245;
+  --fg-muted: 161 161 170;
+  --fg-subtle: 113 113 122;
+  --border: 39 39 42;
+  --accent: 129 140 248;
+  --accent-fg: 12 12 14;
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 html,

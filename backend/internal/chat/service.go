@@ -17,6 +17,7 @@ type Service struct {
 	repo             *db.Repo
 	llm              *openrouter.Client
 	defaultModel     string
+	allowedModels    map[string]struct{}
 	contextThreshold int
 	keepRecent       int
 	log              *slog.Logger
@@ -24,6 +25,7 @@ type Service struct {
 
 type Options struct {
 	DefaultModel     string
+	AllowedModels    []string
 	ContextThreshold int
 	KeepRecent       int
 	Logger           *slog.Logger
@@ -39,19 +41,37 @@ func NewService(repo *db.Repo, llm *openrouter.Client, opts Options) *Service {
 	if opts.ContextThreshold <= 0 {
 		opts.ContextThreshold = 6000
 	}
+	allowed := make(map[string]struct{}, len(opts.AllowedModels))
+	for _, m := range opts.AllowedModels {
+		allowed[m] = struct{}{}
+	}
 	return &Service{
 		repo:             repo,
 		llm:              llm,
 		defaultModel:     opts.DefaultModel,
+		allowedModels:    allowed,
 		contextThreshold: opts.ContextThreshold,
 		keepRecent:       opts.KeepRecent,
 		log:              opts.Logger,
 	}
 }
 
+var ErrInvalidModel = errors.New("model is not in the allowed list")
+
+func (s *Service) IsAllowedModel(model string) bool {
+	if len(s.allowedModels) == 0 {
+		return true
+	}
+	_, ok := s.allowedModels[model]
+	return ok
+}
+
 func (s *Service) CreateChat(ctx context.Context, model string) (*models.Chat, error) {
 	if model == "" {
 		model = s.defaultModel
+	}
+	if !s.IsAllowedModel(model) {
+		return nil, ErrInvalidModel
 	}
 	c := &models.Chat{
 		ID:    uuid.NewString(),
@@ -62,6 +82,13 @@ func (s *Service) CreateChat(ctx context.Context, model string) (*models.Chat, e
 		return nil, err
 	}
 	return c, nil
+}
+
+func (s *Service) ChangeModel(ctx context.Context, id, model string) error {
+	if !s.IsAllowedModel(model) {
+		return ErrInvalidModel
+	}
+	return s.repo.UpdateChatModel(ctx, id, model)
 }
 
 func (s *Service) ListChats(ctx context.Context) ([]models.Chat, error) {

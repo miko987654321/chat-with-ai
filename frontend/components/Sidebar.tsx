@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import type { Chat } from "@/lib/types";
 import { groupChatsByDate } from "@/lib/format";
 import { ChatListSkeleton } from "./Skeletons";
+import { ThemeToggle } from "./ThemeToggle";
 import { PlusIcon, PencilIcon, TrashIcon, MessageIcon, CheckIcon, XIcon } from "./Icons";
 
 interface SidebarProps {
@@ -83,12 +84,15 @@ export function Sidebar({ activeId, onSelect, onCreate, refreshKey }: SidebarPro
           <MessageIcon className="text-accent" />
           Chat with AI
         </div>
+        <ThemeToggle />
+      </div>
+      <div className="px-3 pt-3">
         <button
           type="button"
           onClick={handleCreate}
           disabled={creating}
           className={clsx(
-            "inline-flex items-center gap-1.5 rounded-lg border border-border bg-bg px-2.5 py-1.5 text-xs font-medium",
+            "inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-bg px-2.5 py-2 text-sm font-medium",
             "transition hover:bg-bg-subtle disabled:cursor-not-allowed disabled:opacity-60",
           )}
           aria-label="Новый чат"

@@ -82,6 +82,21 @@ func (r *Repo) UpdateChatTitle(ctx context.Context, id, title string) error {
 	return nil
 }
 
+func (r *Repo) UpdateChatModel(ctx context.Context, id, model string) error {
+	res, err := r.db.ExecContext(ctx,
+		`UPDATE chats SET model = ?, updated_at = ? WHERE id = ?`,
+		model, time.Now().UTC(), id,
+	)
+	if err != nil {
+		return fmt.Errorf("update model: %w", err)
+	}
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
 func (r *Repo) UpdateChatSummary(ctx context.Context, id, summary string) error {
 	_, err := r.db.ExecContext(ctx,
 		`UPDATE chats SET summary = ?, updated_at = ? WHERE id = ?`,

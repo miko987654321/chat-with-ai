@@ -53,6 +53,13 @@ export const api = {
     });
   },
 
+  async setChatModel(id: string, model: string): Promise<void> {
+    return request(`/api/chats/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ model }),
+    });
+  },
+
   async deleteChat(id: string): Promise<void> {
     return request(`/api/chats/${id}`, { method: "DELETE" });
   },

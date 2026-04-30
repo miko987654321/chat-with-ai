@@ -173,7 +173,14 @@ export function ChatView({ chatId, onTurnComplete }: Props) {
     <div className="flex h-full flex-col">
       <header className="flex items-center justify-between gap-3 border-b border-border bg-bg-panel/60 px-4 py-3 backdrop-blur">
         <h1 className="truncate text-sm font-semibold">{chat.title || "Без названия"}</h1>
-        <ModelPicker value={chat.model} disabled={streaming} />
+        <ModelPicker
+          value={chat.model}
+          disabled={streaming}
+          onChange={async (modelId) => {
+            await api.setChatModel(chat.id, modelId);
+            setChat((prev) => (prev ? { ...prev, model: modelId } : prev));
+          }}
+        />
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">

@@ -76,24 +76,45 @@ func (h *Handler) GetChat(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, c)
 }
 
-type renameChatBody struct {
-	Title string `json:"title"`
+type updateChatBody struct {
+	Title *string `json:"title,omitempty"`
+	Model *string `json:"model,omitempty"`
 }
 
-func (h *Handler) RenameChat(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateChat(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	var body renameChatBody
+	var body updateChatBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		return
 	}
-	if err := h.svc.RenameChat(r.Context(), id, body.Title); err != nil {
-		if errors.Is(err, db.ErrNotFound) {
-			writeError(w, http.StatusNotFound, err)
+	if body.Title == nil && body.Model == nil {
+		writeError(w, http.StatusBadRequest, errors.New("nothing to update"))
+		return
+	}
+	if body.Title != nil {
+		if err := h.svc.RenameChat(r.Context(), id, *body.Title); err != nil {
+			if errors.Is(err, db.ErrNotFound) {
+				writeError(w, http.StatusNotFound, err)
+				return
+			}
+			writeError(w, http.StatusBadRequest, err)
 			return
 		}
-		writeError(w, http.StatusBadRequest, err)
-		return
+	}
+	if body.Model != nil {
+		if err := h.svc.ChangeModel(r.Context(), id, *body.Model); err != nil {
+			if errors.Is(err, db.ErrNotFound) {
+				writeError(w, http.StatusNotFound, err)
+				return
+			}
+			if errors.Is(err, chat.ErrInvalidModel) {
+				writeError(w, http.StatusBadRequest, err)
+				return
+			}
+			writeError(w, http.StatusInternalServerError, err)
+			return
+		}
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
