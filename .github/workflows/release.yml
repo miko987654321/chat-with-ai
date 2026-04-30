@@ -109,4 +109,11 @@ jobs:
 
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --force-recreate --remove-orphans
+
+            # Also refresh the local `latest` tag so manual `docker compose up -d` (without
+            # IMAGE_TAG set in the shell) doesn't accidentally start a stale image — the
+            # historical source of the "I restarted and it went back to the old version" bug.
+            docker pull ghcr.io/${GITHUB_REPOSITORY}-backend:latest  || true
+            docker pull ghcr.io/${GITHUB_REPOSITORY}-frontend:latest || true
+
             docker image prune -f
