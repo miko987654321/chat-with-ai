@@ -1,0 +1,19 @@
+.idea/
+.vscode/
+.DS_Store
+.env
+.env.local
+
+# Backend
+backend/data/
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+backend/server
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts

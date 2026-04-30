@@ -1,0 +1,49 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY:-meirkhan/chat-with-ai}-backend:${IMAGE_TAG:-latest}
+    container_name: chat-with-ai-backend
+    restart: unless-stopped
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-deepseek/deepseek-chat-v3-0324:free}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      APP_NAME: ${APP_NAME:-Chat with AI}
+      CONTEXT_THRESHOLD_TOKENS: ${CONTEXT_THRESHOLD_TOKENS:-6000}
+      KEEP_RECENT_MESSAGES: ${KEEP_RECENT_MESSAGES:-8}
+      DB_PATH: /data/chat.db
+      PORT: "8080"
+    volumes:
+      - chat-data:/data
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:8080}
+    image: ghcr.io/${GITHUB_REPOSITORY:-meirkhan/chat-with-ai}-frontend:${IMAGE_TAG:-latest}
+    container_name: chat-with-ai-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      BACKEND_URL: http://backend:8080
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:8080}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+
+volumes:
+  chat-data:
