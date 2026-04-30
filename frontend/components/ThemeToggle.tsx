@@ -3,66 +3,44 @@
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 
-type Theme = "light" | "dark" | "system";
+type Theme = "light" | "dark";
 const STORAGE_KEY = "theme";
 
 function applyTheme(theme: Theme) {
-  const root = document.documentElement;
-  const systemDark =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const resolved: "light" | "dark" =
-    theme === "system" ? (systemDark ? "dark" : "light") : theme;
-  root.classList.toggle("dark", resolved === "dark");
-  root.dataset.theme = theme;
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.dataset.theme = theme;
 }
 
 function readTheme(): Theme {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   const v = window.localStorage.getItem(STORAGE_KEY);
-  return v === "light" || v === "dark" ? v : "system";
+  if (v === "light" || v === "dark") return v;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
-  // initial pick + react to system changes when theme === "system"
   useEffect(() => {
     setMounted(true);
     setTheme(readTheme());
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      if (readTheme() === "system") applyTheme("system");
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const cycle = () => {
-    const next: Theme =
-      theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
+  const toggle = () => {
+    const next: Theme = theme === "light" ? "dark" : "light";
     setTheme(next);
-    if (next === "system") {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } else {
-      window.localStorage.setItem(STORAGE_KEY, next);
-    }
+    window.localStorage.setItem(STORAGE_KEY, next);
     applyTheme(next);
   };
 
-  const label =
-    theme === "light"
-      ? "Светлая тема"
-      : theme === "dark"
-        ? "Тёмная тема"
-        : "Системная тема";
+  const label = theme === "light" ? "Включить тёмную тему" : "Включить светлую тему";
 
   return (
     <button
       type="button"
-      onClick={cycle}
-      title={label + " (нажмите, чтобы переключить)"}
+      onClick={toggle}
+      title={label}
       aria-label={label}
       className={clsx(
         "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-bg text-fg-muted transition",
@@ -70,14 +48,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         className,
       )}
     >
-      {/* Stable SSR icon (sun); replaced after hydration to match user pref. */}
-      {!mounted || theme === "light" ? (
-        <SunIcon />
-      ) : theme === "dark" ? (
-        <MoonIcon />
-      ) : (
-        <SystemIcon />
-      )}
+      {!mounted || theme === "light" ? <SunIcon /> : <MoonIcon />}
     </button>
   );
 }
@@ -106,15 +77,6 @@ function MoonIcon() {
   return (
     <svg {...svgBase}>
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
-function SystemIcon() {
-  return (
-    <svg {...svgBase}>
-      <rect x="2" y="4" width="20" height="14" rx="2" />
-      <path d="M8 21h8M12 17v4" />
     </svg>
   );
 }

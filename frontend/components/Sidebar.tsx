@@ -207,7 +207,7 @@ export function Sidebar({ activeId, onSelect, onCreate, refreshKey }: SidebarPro
       </div>
 
       <div className="border-t border-border p-3 text-[11px] text-fg-subtle">
-        Бесплатные модели OpenRouter • Без авторизации
+        Абдуллаев Меирхан
       </div>
     </aside>
   );

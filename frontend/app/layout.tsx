@@ -6,15 +6,18 @@ export const metadata: Metadata = {
   description: "Веб-чат с нейросетью на базе OpenRouter",
 };
 
-// Inlined synchronously to avoid a flash of light theme. Mirrors the logic in ThemeToggle.
+// Inlined synchronously to avoid a flash of light theme. Mirrors the logic in ThemeToggle:
+// stored choice wins; otherwise we follow the OS preference for the very first visit, then
+// the user's explicit toggle is persisted from then on.
 const themeInitScript = `
 (function () {
   try {
     var stored = localStorage.getItem("theme");
-    var systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var dark = stored === "dark" || (stored !== "light" && systemDark);
-    document.documentElement.classList.toggle("dark", dark);
-    document.documentElement.dataset.theme = stored || "system";
+    var theme = (stored === "light" || stored === "dark")
+      ? stored
+      : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.dataset.theme = theme;
   } catch (e) {}
 })();
 `;
