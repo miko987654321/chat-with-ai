@@ -99,6 +99,14 @@ jobs:
             export GITHUB_REPOSITORY=${{ github.repository }}
             export IMAGE_TAG=sha-$(echo "${{ github.sha }}" | cut -c1-7)
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            # Tear down any stack that might have been started from the dev compose file
+            # (built locally) — its containers share names with the prod stack and would
+            # otherwise be left in place untouched.
+            if [ -f docker-compose.yml ]; then
+              docker compose -f docker-compose.yml down --remove-orphans || true
+            fi
+
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml up -d --force-recreate --remove-orphans
             docker image prune -f
