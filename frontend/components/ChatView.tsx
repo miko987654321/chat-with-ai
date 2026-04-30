@@ -7,14 +7,15 @@ import { MessageBubble } from "./MessageBubble";
 import { MessageInput, type MessageInputHandle } from "./MessageInput";
 import { MessagesSkeleton } from "./Skeletons";
 import { ModelPicker } from "./ModelPicker";
-import { SparkleIcon } from "./Icons";
+import { SparkleIcon, MenuIcon } from "./Icons";
 
 interface Props {
   chatId: string;
   onTurnComplete: () => void;
+  onOpenSidebar?: () => void;
 }
 
-export function ChatView({ chatId, onTurnComplete }: Props) {
+export function ChatView({ chatId, onTurnComplete, onOpenSidebar }: Props) {
   const [chat, setChat] = useState<ChatWithMessages | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -171,8 +172,18 @@ export function ChatView({ chatId, onTurnComplete }: Props) {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center justify-between gap-3 border-b border-border bg-bg-panel/60 px-4 py-3 backdrop-blur">
-        <h1 className="truncate text-sm font-semibold">{chat.title || "Без названия"}</h1>
+      <header className="flex items-center gap-2 border-b border-border bg-bg-panel/60 px-3 py-2 backdrop-blur sm:px-4 sm:py-3">
+        {onOpenSidebar && (
+          <button
+            type="button"
+            onClick={onOpenSidebar}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-bg text-fg-muted transition hover:bg-bg-subtle hover:text-fg md:hidden"
+            aria-label="Открыть меню"
+          >
+            <MenuIcon width={18} height={18} />
+          </button>
+        )}
+        <h1 className="min-w-0 flex-1 truncate text-sm font-semibold">{chat.title || "Без названия"}</h1>
         <ModelPicker
           value={chat.model}
           disabled={streaming}
@@ -184,7 +195,7 @@ export function ChatView({ chatId, onTurnComplete }: Props) {
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-6">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-3 sm:p-6">
           {showEmpty && (
             <div className="flex flex-col items-center gap-3 py-16 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/15 text-accent">

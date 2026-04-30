@@ -6,6 +6,16 @@ export const metadata: Metadata = {
   description: "Веб-чат с нейросетью на базе OpenRouter",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0c0e" },
+  ],
+};
+
 // Inlined synchronously to avoid a flash of light theme. Mirrors the logic in ThemeToggle:
 // stored choice wins; otherwise we follow the OS preference for the very first visit, then
 // the user's explicit toggle is persisted from then on.

@@ -60,7 +60,7 @@ export const MessageInput = forwardRef<MessageInputHandle, Props>(
 
     return (
       <div className="border-t border-border bg-bg-panel">
-        <div className="mx-auto w-full max-w-3xl p-4">
+        <div className="mx-auto w-full max-w-3xl p-3 sm:p-4">
           <div
             className={clsx(
               "flex items-end gap-2 rounded-2xl border border-border bg-bg p-2 transition",

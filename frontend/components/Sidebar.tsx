@@ -9,14 +9,34 @@ import { ChatListSkeleton } from "./Skeletons";
 import { ThemeToggle } from "./ThemeToggle";
 import { PlusIcon, PencilIcon, TrashIcon, MessageIcon, CheckIcon, XIcon } from "./Icons";
 
+// Bind body scroll-lock + Escape close to the mobile drawer state. Static layout on md+ ignores
+// these because the sidebar is always visible.
+function useMobileDrawer(open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+}
+
 interface SidebarProps {
   activeId: string | null;
   onSelect: (id: string) => void;
   onCreate: () => Promise<void> | void;
   refreshKey: number;
+  open: boolean;
+  onClose: () => void;
 }
 
-export function Sidebar({ activeId, onSelect, onCreate, refreshKey }: SidebarProps) {
+export function Sidebar({ activeId, onSelect, onCreate, refreshKey, open, onClose }: SidebarProps) {
   const [chats, setChats] = useState<Chat[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -76,15 +96,46 @@ export function Sidebar({ activeId, onSelect, onCreate, refreshKey }: SidebarPro
   };
 
   const groups = chats ? groupChatsByDate(chats) : [];
+  useMobileDrawer(open, onClose);
 
   return (
-    <aside className="flex h-full w-72 shrink-0 flex-col border-r border-border bg-bg-panel">
+    <>
+      {/* Backdrop — only rendered on mobile when drawer is open */}
+      <div
+        onClick={onClose}
+        className={clsx(
+          "fixed inset-0 z-30 bg-black/50 transition-opacity md:hidden",
+          open ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+        aria-hidden
+      />
+
+      <aside
+        className={clsx(
+          "z-40 flex h-full w-72 shrink-0 flex-col border-r border-border bg-bg-panel",
+          // Mobile: fixed drawer that slides in from the left.
+          "fixed inset-y-0 left-0 transition-transform duration-200",
+          open ? "translate-x-0" : "-translate-x-full",
+          // Desktop (md+): static, always visible, no transform.
+          "md:static md:translate-x-0",
+        )}
+      >
       <div className="flex items-center justify-between gap-2 border-b border-border p-3">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <MessageIcon className="text-accent" />
           Chat with AI
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-1.5">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-bg text-fg-muted transition hover:bg-bg-subtle hover:text-fg md:hidden"
+            aria-label="Закрыть меню"
+          >
+            <XIcon width={16} height={16} />
+          </button>
+        </div>
       </div>
       <div className="px-3 pt-3">
         <button
@@ -209,6 +260,7 @@ export function Sidebar({ activeId, onSelect, onCreate, refreshKey }: SidebarPro
       <div className="border-t border-border p-3 text-[11px] text-fg-subtle">
         Абдуллаев Меирхан
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

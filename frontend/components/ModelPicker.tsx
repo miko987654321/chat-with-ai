@@ -72,15 +72,15 @@ export function ModelPicker({ value, disabled, onChange }: Props) {
         disabled={disabled || busy}
         title={current?.description}
         className={clsx(
-          "inline-flex items-center gap-2 rounded-md border border-border bg-bg px-2.5 py-1 text-xs transition",
+          "inline-flex max-w-[180px] items-center gap-2 rounded-md border border-border bg-bg px-2.5 py-1 text-xs transition sm:max-w-none",
           "hover:bg-bg-subtle disabled:cursor-not-allowed disabled:opacity-60",
           open && "bg-bg-subtle",
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="text-fg-subtle">Модель:</span>
-        <span className="font-medium">{current?.name ?? value ?? "—"}</span>
+        <span className="hidden text-fg-subtle sm:inline">Модель:</span>
+        <span className="truncate font-medium">{current?.name ?? value ?? "—"}</span>
         <svg
           width="10"
           height="10"
@@ -99,7 +99,7 @@ export function ModelPicker({ value, disabled, onChange }: Props) {
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 top-full z-30 mt-1.5 w-72 overflow-hidden rounded-xl border border-border bg-bg-panel shadow-lg animate-fade-in"
+          className="absolute right-0 top-full z-30 mt-1.5 max-h-[70vh] w-[min(18rem,calc(100vw-1.5rem))] overflow-y-auto rounded-xl border border-border bg-bg-panel shadow-lg animate-fade-in"
         >
           {models.map((m) => {
             const active = m.id === value;
